@@ -64,18 +64,20 @@ jobs:
       - name: Run post-merge task
         run: echo "PR ${{ github.event.pull_request.number }} merged into main"
 
-      - name: Comment badges on merged PR
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PR_NUMBER: ${{ github.event.pull_request.number }}
-          RELEASES: ${{ needs.get-casadi-releases.outputs.releases }}
+      - name: Prepend badges to merged PR description
         run: |
-          # Build the comment body with one badge per CasADi version
-          BODY="CasADi version badges:"
+          # Build badges inline (space-separated so they render on one line)
+          BADGES=""
           for version in $(echo "$RELEASES" | jq -r '.[]'); do
-            BADGE_URL="https://img.shields.io/badge/CasADi-${version}-blue"
-            BODY="${BODY}"$'\n'"![CasADi ${version}](${BADGE_URL})"
+            BADGE_URL="https://img.shields.io/badge/CasADi-${version}-green"
+            BADGES="${BADGES} ![CasADi ${version}](${BADGE_URL})"
           done
 
-          # Post the comment to the PR that was just merged
-          gh pr comment "$PR_NUMBER" --body "$BODY"
+          # Get the current PR body
+          CURRENT_BODY=$(gh pr view "$PR_NUMBER" --json body --jq '.body')
+
+          # Prepend badges on top, followed by a horizontal rule, then the original body
+          NEW_BODY=$(printf '%s\n\n---\n\n%s' "$BADGES" "$CURRENT_BODY")
+
+          # Update the PR description
+          gh pr edit "$PR_NUMBER" --body "$NEW_BODY"
