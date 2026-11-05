@@ -65,6 +65,10 @@ jobs:
         run: echo "PR ${{ github.event.pull_request.number }} merged into main"
 
       - name: Prepend badges to merged PR description
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          RELEASES: ${{ needs.get-casadi-releases.outputs.releases }}
         run: |
           # Build badges inline (space-separated so they render on one line)
           BADGES=""
