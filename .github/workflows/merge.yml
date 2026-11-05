@@ -81,7 +81,7 @@ jobs:
           CURRENT_BODY=$(gh pr view "$PR_NUMBER" --json body --jq '.body')
 
           # Prepend badges on top, followed by a horizontal rule, then the original body
-          NEW_BODY=$(printf '%s\n\n---\n\n%s' "$BADGES" "$CURRENT_BODY")
+          NEW_BODY=$(printf '%s\n\n%s' "$BADGES" "$CURRENT_BODY")
 
           # Update the PR description
           gh pr edit "$PR_NUMBER" --body "$NEW_BODY"
