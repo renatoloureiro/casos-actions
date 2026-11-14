@@ -45,18 +45,18 @@ runs:
     # Configure MOSEK license for solver activation
     - name: Set up MOSEK license
       shell: bash
+      env:
+        MSK_LICENSE: ${{ env.MOSEKLM_LICENSE_FILE }}
       run: |
         # Create MOSEK configuration directory in user's home
         mkdir -p ~/mosek
 
         # Create license file from environment variable (typically from GitHub secret)
-        if [ -n "${{ env.MOSEKLM_LICENSE_FILE }}" ]; then
-          echo "Creating license file from secret..."
-          echo "${{ env.MOSEKLM_LICENSE_FILE }}" > ~/mosek/mosek.lic
+        if [ -n "$MSK_LICENSE" ]; then
+          printf '%s\n' "$MSK_LICENSE" > ~/mosek/mosek.lic
           chmod 600 ~/mosek/mosek.lic
-          echo "MOSEK license file created at ~/mosek/mosek.lic"
         else
-          echo "Warning: No MOSEK license secret found. Set MSK_LICENSE secret with your license content."
+          echo "Warning: MSK_LICENSE secret is empty."
         fi
 
     # Debug: List generated files for verification
