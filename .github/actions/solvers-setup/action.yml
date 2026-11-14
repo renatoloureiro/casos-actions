@@ -106,7 +106,7 @@ runs:
     - name: Download SeDuMi release archive
       shell: bash
       run: |
-        wget -q "https://github.com/sqlp/sedumi/releases/download/v1.3.8/sedumi.zip" -o /tmp/sedumi.zip
+        wget -q "https://github.com/sqlp/sedumi/releases/download/v1.3.8/sedumi.zip" -O /tmp/sedumi.zip
         unzip -q /tmp/sedumi.zip -d sedumi
         # Remove Octave binaries, keep only MATLAB MEX files
         rm -rf sedumi/o_lin sedumi/o_maca sedumi/o_maci sedumi/o_win
