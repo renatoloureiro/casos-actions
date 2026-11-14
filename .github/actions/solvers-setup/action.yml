@@ -103,30 +103,26 @@ runs:
     # SeDuMi INSTALLATION
     # ============================================================
 
-    # Clone SeDuMi repository from GitHub
-    - name: Checkout tools repo
-      uses: actions/checkout@v3
-      with:
-        repository: sqlp/sedumi   # Official SeDuMi repository
-        path: sedumi              # Local directory name
+    - name: Download SeDuMi release archive
+      shell: bash
+      run: |
+        wget -q "https://github.com/sqlp/sedumi/releases/download/v1.3.8/sedumi.zip" -o /tmp/sedumi.zip
+        unzip -q /tmp/sedumi.zip -d sedumi
+        # Remove Octave binaries, keep only MATLAB MEX files
+        rm -rf sedumi/o_lin sedumi/o_maca sedumi/o_maci sedumi/o_win
+        rm -f /tmp/sedumi.zip
 
-    # Install and compile SeDuMi in MATLAB
-    - uses: matlab-actions/run-command@v2
+    # Binaries verification
+    - name: Verify SeDuMi binaries
+      uses: matlab-actions/run-command@v2
       with:
         command: |
-          % Navigate to SeDuMi directory
-          cd('sedumi'); 
-
-          % Install SeDuMi with rebuild flag (compiles MEX files)
-          try
-            % Use evalc to capture installation output silently
-            evalc('install_sedumi -rebuild');
-            fprintf('SeDuMi installed successfully\n');
-          catch ME
-            % Display error details if installation fails
-            fprintf('Error installing SeDuMi: %s\n', ME.message);
-            rethrow(ME);
+          addpath(genpath(fullfile(pwd, 'sedumi')));
+          % Confirm MEX binaries are loadable (blkchol is a core compiled function)
+          if exist('blkchol', 'file') ~= 3
+            error('SeDuMi MEX binaries are not available on this platform.');
           end
+          fprintf('SeDuMi prebuilt binaries are ready.\n');
 
     # ============================================================
     # SCS INSTALLATION
